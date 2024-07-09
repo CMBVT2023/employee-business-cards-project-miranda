@@ -1,6 +1,4 @@
-// TODO: 
-// Create function to display employees
-// Have the business selection/creation menu open if no businesses already exist
+// TODO:
 // Create a way to edit employees
 // Create a way to remove Employees
 // Implement the filter for employees
@@ -21,6 +19,10 @@ class AppUI {
         this._currentBusiness;
         this._currentEmployees;
         this._selectedBusiness;
+        this._selectedBusinessIndex;
+
+        // Initializes a boolean variable for employeeButtons visibility.
+        this._employeeButtonHidden = true;
 
         // Calls the function to load the necessary HTML elements.
         this._loadHTMLElements();
@@ -58,6 +60,7 @@ class AppUI {
 
         // Elements relating to the display-container
         this._newEmployeeFormButton = document.getElementById('toggle-new-employee-form');
+        this._employeeButtons = document.getElementById('toggle-employee-buttons');
         this._employeeCardsElement = document.getElementById('employee-cards');
     };
 
@@ -76,9 +79,25 @@ class AppUI {
         this._employeeFormContainer.classList.toggle('hidden');
     }
 
+    // Toggles the hidden class for all of the edit and delete buttons on the various employee cards.
+    _toggleEmployeeButtons() {
+        // Iterates through all employeeCards button divs and toggles their hidden class.
+        for (const button of this._employeeCardsElement.getElementsByClassName('employee-buttons')) {
+            button.classList.toggle('hidden')
+        }
+    }
+
     // Loads the selected business' employee count into the appropriate display.
-    _loadBusinessEmployeeCount() {
-        this._selectedBusiness.calculateEmployeeAmount;
+    // // Parameter is the amount of employees that the business has, number is calculated based on the length of the business's
+    // // associated business array.
+    _loadBusinessEmployeeCount(num) {
+        // Sets the employee count for the selected business and saves the value to localStorage.
+        this._selectedBusiness.employeeAmount = +num;
+
+        // Calls the storageModule method to edit the currently selected business to update its employeeAmount variable.
+        storageModule.businessStorage.editBusiness(this._selectedBusinessIndex, this._selectedBusiness);
+
+        // Loads the employeeAmount variable in to its associated display element.
         this._employeeAmountDisplay.innerHTML = this._selectedBusiness.employeeAmount;
     }
 
@@ -87,11 +106,38 @@ class AppUI {
         this._businessNameDisplay.innerHTML = this._selectedBusiness.businessName;
         this._ownerNameDisplay.innerHTML = this._selectedBusiness.businessOwner
 
-        this._loadBusinessEmployeeCount();
+        this._loadEmployees();
     }
 
+    // Loads all employees associated with the currently selected business.
     _loadEmployees() {
-        this._
+        // Gets the employeeArray from localStorage.
+        let employeeArray = storageModule.employeeStorage.getEmployeeArray(this._selectedBusiness.businessID)
+
+        // Clears the employeeCardsElement.
+        this._employeeCardsElement.innerHTML = ``;
+
+        // Iterates through the employeeArray.
+        for (const item in employeeArray) {
+            // Creates a new div containing the current employee's information.
+            this._employeeCardsElement.innerHTML += `<div id="employee-${item}" class="business-employee">
+                <h1 class="employee-name">${employeeArray[item].employeeName}</h1>
+                <p>Position: <span class="employee-position">${employeeArray[item].employeePosition}</span></p>
+                <div class="employee-buttons">
+                    <h6 class="header-button">Edit</h6>
+                    <h6 class="header-button">Delete</h6>
+                </div>
+            </div>`
+        }
+
+        // Checks if the employeeButtonHidden variable is true.
+        if (this._employeeButtonHidden) {
+            // If so, then all buttons are meant to be hidden and the function is called to do so.
+            this._toggleEmployeeButtons();
+        }
+
+        // Calls the function to set the businessEmployeeAmount and passes in the length of the employeeArray.
+        this._loadBusinessEmployeeCount(employeeArray.length);
     }
 
     // Loads all of the businesses from localStorage into the businessListElement.
@@ -99,21 +145,29 @@ class AppUI {
         // Gets the businessArray from localStorage.
         let businessArray = storageModule.businessStorage.getBusinessArray();
 
-        // Clears the businessListElement.
-        this._businessListElement.innerHTML = ''
-
-        // Iterates through all elements in the businessArray.
-        for (const index in businessArray) {
-            // Appends a new div containing a input and label for the business at the current index. 
-            this._businessListElement.innerHTML += 
-                `<div>
-                    <input type="radio" id="${index}" name="business">
-                    <label for="${index}">${businessArray[index].businessName}</label>
-                </div>`;
+        // Checks if the businessArray is empty.
+        if (businessArray.length > 0) {
+            // If at least one business is within the array,
+            // Clears the businessListElement.
+            this._businessListElement.innerHTML = ''
+    
+            // Iterates through all elements in the businessArray.
+            for (const index in businessArray) {
+                // Appends a new div containing a input and label for the business at the current index. 
+                this._businessListElement.innerHTML += 
+                    `<div>
+                        <input type="radio" id="${index}" name="business">
+                        <label for="${index}">${businessArray[index].businessName}</label>
+                    </div>`;
+            }
+    
+            // Calls the function to load the eventListeners for the inputs in the businessListElement.
+            this._loadAllBusinessEventListeners();
+        } else {
+            // If no businesses are present within the array.
+            this._toggleTeamSelection()
         }
 
-        // Calls the function to load the eventListeners for the inputs in the businessListElement.
-        this._loadAllBusinessEventListeners();
     }
 
     // Loads all the eventListeners for the inputs currently in the businessListElement.
@@ -128,6 +182,8 @@ class AppUI {
         for (let i = 0; i < radios.length; i++) {
             // Creates an eventListener for the input at the current index.
             radios[i].addEventListener('change', () => {
+                // Stores the associated business's index value in the selectedBusinessIndex variable.
+                this._selectedBusinessIndex = i;
                 // Sets the selectedBusiness variable to the business at the current index.
                 this._selectedBusiness = businessArray[i];
 
@@ -167,6 +223,20 @@ class AppUI {
         // Event listeners associated with toggling hidden containers.
         this._changeBusinessButton.addEventListener('click', this._toggleTeamSelection.bind(this));
         this._newEmployeeFormButton.addEventListener('click', this._toggleEmployeeForm.bind(this));
+        this._employeeButtons.addEventListener('click', () => {
+            // Checks the value of the visibility variable.
+            if (this._employeeButtonHidden) {
+                // If true, calls the function to toggle the hidden class on the employee buttons.
+                this._toggleEmployeeButtons()
+                // Sets the employeeHidden variable to false, indicating that the user wants them to be visible.
+                this._employeeButtonHidden = false;
+            } else {
+                // If false, calls the function to toggle the hidden class on the employee buttons.
+                this._toggleEmployeeButtons()
+                // Sets the employeeHidden variable to true, indicating that the user wants them to be hidden.
+                this._employeeButtonHidden = true;
+            }
+        });
 
         // Event listeners associated with redirecting the webpage.
         this._newBusinessFormButton.addEventListener('click', this._redirectTeamFormPage.bind(this));

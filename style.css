@@ -4,6 +4,14 @@ html {
     overflow: hidden;
 }
 
+#watermark {
+    position: absolute;
+    bottom: 1%;
+    right: 1%;
+    font-size: 12px;
+    text-align: end;
+}
+
 .hidden {
     display: none;
 }
