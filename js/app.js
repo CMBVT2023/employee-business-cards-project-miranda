@@ -104,15 +104,21 @@ class AppUI {
     // Loads the selected business' info into their respective displays.
     _loadSelectedBusiness() {
         this._businessNameDisplay.innerHTML = this._selectedBusiness.businessName;
-        this._ownerNameDisplay.innerHTML = this._selectedBusiness.businessOwner
+        this._ownerNameDisplay.innerHTML = this._selectedBusiness.businessOwner;
 
         this._loadEmployees();
+    }
+
+    _loadEmployeeButtons() {
+        let buttonList = this._employeeCardsElement.querySelectorAll('.employee-buttons');
+
+        // Left off by creating a node list of the employee buttons and just need to assign an event listener to the edit and delete buttons of each employee.
     }
 
     // Loads all employees associated with the currently selected business.
     _loadEmployees() {
         // Gets the employeeArray from localStorage.
-        let employeeArray = storageModule.employeeStorage.getEmployeeArray(this._selectedBusiness.businessID)
+        let employeeArray = storageModule.employeeStorage.getEmployeeArray(this._selectedBusiness.businessID);
 
         // Clears the employeeCardsElement.
         this._employeeCardsElement.innerHTML = ``;
@@ -135,6 +141,8 @@ class AppUI {
             // If so, then all buttons are meant to be hidden and the function is called to do so.
             this._toggleEmployeeButtons();
         }
+
+        this._loadEmployeeButtons();
 
         // Calls the function to set the businessEmployeeAmount and passes in the length of the employeeArray.
         this._loadBusinessEmployeeCount(employeeArray.length);
