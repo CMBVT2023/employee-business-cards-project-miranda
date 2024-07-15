@@ -316,6 +316,29 @@ class AppUI {
         }
     }
 
+    _filterEmployees() {
+        let filterNameValue = this._employeeNameFilterInput.value === "" ? undefined : this._employeeNameFilterInput.value;
+        let filterPositionValue = this._employeePositionSelector.value === "none" ? undefined : this._employeePositionSelector.value;
+
+        if (this._selectedBusiness !== undefined) {
+            // Instead of pulling the array from localStorage, I'm going to pull the html div element containing the employees.    
+            for (const employee of this._employeeCardsElement.querySelectorAll('.business-employee')) {
+                if (filterNameValue !== undefined) {
+                    let employeeName = employee.querySelector('h1').innerHTML;
+                    let regexPattern = new RegExp(`(^${filterNameValue}.*)`, 'gi')
+                    if (employeeName.match(regexPattern) === null) {
+                        employee.classList.add('hidden')
+                    } else {
+                        employee.classList.remove('hidden')
+                    }
+                }
+                if (filterPositionValue !== undefined) {
+                    console.log(employee)
+                }
+            }
+        }
+    }
+
     // Loads all of the default eventListeners for the necessary HTML elements 
     _loadEventListeners() {
         // Event listeners associated with toggling hidden containers.
@@ -359,6 +382,10 @@ class AppUI {
                 this._removeAllEmployees();
             }
         })
+    
+        // Event listeners associated with filtering employees in the selected business's employee array.
+        this._employeeNameFilterInput.addEventListener('keyup', this._filterEmployees.bind(this));
+        this._employeePositionSelector.addEventListener('change', this._filterEmployees.bind(this));
     }
 }
 
