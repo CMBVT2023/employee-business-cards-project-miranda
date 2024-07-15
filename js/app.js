@@ -101,6 +101,12 @@ class AppUI {
 
         // Loads the employeeAmount variable in to its associated display element.
         this._employeeAmountDisplay.innerHTML = this._selectedBusiness.employeeAmount;
+
+        if (this._selectedBusiness.employeeAmount > 0) {
+            this._removeAllEmployeeButton.classList.remove('hidden');
+        } else {
+            this._removeAllEmployeeButton.classList.add('hidden');
+        }
     }
 
     // Loads the selected business' info into their respective displays.
@@ -281,20 +287,33 @@ class AppUI {
 
     // Removes the employee from the currently selected business's employeeArray. 
     _removeEmployee() {
-        // Calls the storageModule method to remove the currently selected employee at its specified index.
-        storageModule.employeeStorage.removeEmployee(this._selectedBusiness.businessID, this._selectedEmployeeIndex);
+        // Initializes a variable to store the result of a confirm popup
+        let result = confirm("Warning: This action cannot be undone!\nDo you still want to continue?");
 
-        // Calls the function to reload the employeeArray for the currently selected business.
-        this._loadEmployees();
+        // Checks the value of the result variable.
+        if (result) {
+            // Calls the storageModule method to remove the currently selected employee at its specified index.
+            storageModule.employeeStorage.removeEmployee(this._selectedBusiness.businessID, this._selectedEmployeeIndex);
+
+            // Calls the function to reload the employeeArray for the currently selected business.
+            this._loadEmployees();
+        }
     }
 
     // Removes all employees from the currently selected business's employeeArray.
     _removeAllEmployees() {
-        // Calls the storage module's method to remove all employees from the passed in key.
-        storageModule.employeeStorage.removeAllEmployees(this._selectedBusiness.businessID);
+        // Initializes a variable to store the result of a confirm popup
+        let result = confirm("Warning: This action cannot be undone!\nDo you still want to continue?");
 
-        // Calls the function to reload all employees for the display.
-        this._loadEmployees()
+        // Checks the value of the result variable.
+        if (result) {
+            // If the value is true,
+            // Calls the storage module's method to remove all employees from the passed in key.
+            storageModule.employeeStorage.removeAllEmployees(this._selectedBusiness.businessID);
+            
+            // Calls the function to reload all employees for the display.
+            this._loadEmployees()
+        }
     }
 
     // Loads all of the default eventListeners for the necessary HTML elements 
