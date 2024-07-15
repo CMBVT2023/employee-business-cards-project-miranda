@@ -24,3 +24,8 @@ export function capitalizeName(str) {
     // Returns a string composed of all words in the array joined by a space.
     return arr.join(' ');
 }
+
+export function returnIndex(str) {
+    let startingValue = str.indexOf('-');
+    return str.substring(startingValue + 1);
+}

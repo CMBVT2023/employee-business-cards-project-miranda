@@ -101,4 +101,35 @@ export class employeeStorage {
         // Calls the method to save the new changes to the employeeArray associated with the key.
         this.setEmployeeArray(key, employeeArray);
     }
+
+    // Removes the employee at the specified index of the employeeArray associated with the passed in key.
+    // // The parameters are a key, to define the business' employeeArray to edit, and the index to remove from the array.
+    static removeEmployee(key, index) {
+        // Gets the employeeArray associated with the passed in key.
+        let employeeArray = this.getEmployeeArray(key);
+
+        // Splices the employeeObject at the specified index from the array.
+        employeeArray.splice(index, 1);
+
+        // Calls the method to save the new changes to the employeeArray associated with the key.
+        this.setEmployeeArray(key, employeeArray);
+    }
+
+    // Overwrites the employee at the specified index of the employeeArray associated with the passed in key with the new obj passed in.
+    static editEmployee(key, index, obj) {
+        // Gets the employeeArray associated with the passed in key.
+        let employeeArray = this.getEmployeeArray(key);
+
+        // Overwrites the employeeObj previously saved to the employeeArray with the passed in obj.
+        employeeArray[index] = obj;
+
+        // Calls the method to save the new changes to the employeeArray associated with the key.
+        this.setEmployeeArray(key, employeeArray);
+    }
+
+    // Removes all elements within the employeeArray associated with the passed in key.
+    static removeAllEmployees(key) {
+        // Calls the method to save the empty array as the employeeArray associated with the key.
+        this.setEmployeeArray(key, []);
+    }
 }

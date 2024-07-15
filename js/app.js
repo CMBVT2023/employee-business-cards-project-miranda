@@ -1,6 +1,4 @@
 // TODO:
-// Create a way to edit employees
-// Create a way to remove Employees
 // Implement the filter for employees
 // Finalize UI Design
 
@@ -20,6 +18,8 @@ class AppUI {
         this._currentEmployees;
         this._selectedBusiness;
         this._selectedBusinessIndex;
+        this._selectedEmployee;
+        this._selectedEmployeeIndex;
 
         // Initializes a boolean variable for employeeButtons visibility.
         this._employeeButtonHidden = true;
@@ -40,6 +40,7 @@ class AppUI {
         this._businessNameDisplay = document.getElementById('business-name');
         this._employeeAmountDisplay = document.getElementById('employee-amount');
         this._ownerNameDisplay = document.getElementById('owner-name');
+        this._removeAllEmployeeButton = document.getElementById('remove-all-employees');
         this._changeBusinessButton = document.getElementById('change-business');
 
         // Elements relating to the team-selection container
@@ -57,6 +58,7 @@ class AppUI {
         this._newEmployeeNameInput = document.getElementById('employee-name-input');
         this._newEmployeePositionInput = document.getElementById('employee-position-input');
         this._newEmployeeButton = document.getElementById('create-new-employee');
+        this._newEmployeeFormTitle = document.getElementById('employee-form-title');
 
         // Elements relating to the display-container
         this._newEmployeeFormButton = document.getElementById('toggle-new-employee-form');
@@ -110,9 +112,24 @@ class AppUI {
     }
 
     _loadEmployeeButtons() {
+        // Creates a node list of employeeButton divs.
         let buttonList = this._employeeCardsElement.querySelectorAll('.employee-buttons');
 
-        // Left off by creating a node list of the employee buttons and just need to assign an event listener to the edit and delete buttons of each employee.
+        // Iterates through all divs in the node list.
+        for (const buttonGroup of buttonList) {
+            // Creates a node list containing all of the h6 header buttons.
+            let buttons = buttonGroup.querySelectorAll('h6');
+            // Initializes an eventListener to trigger the edit mode and set selectedEmployeeIndex to the parentContainer's id.
+            buttons[0].addEventListener('click', () => {
+                this._selectedEmployeeIndex = miscModule.returnIndex(buttonGroup.parentElement.getAttribute('id'));
+                this._loadEditEmployeeMode();
+            })
+            // Initializes an eventListener to remove the selected employee based on its parentContainer's id.
+            buttons[1].addEventListener('click', () => {
+                this._selectedEmployeeIndex = miscModule.returnIndex(buttonGroup.parentElement.getAttribute('id'));
+                this._removeEmployee(this._selectedEmployeeIndex);
+            })
+        }
     }
 
     // Loads all employees associated with the currently selected business.
@@ -226,6 +243,60 @@ class AppUI {
         this._loadEmployees();
     }
 
+    // Edits the employee with the new user input values.
+    _editEmployee() {
+        // Calls the method to create a newEmployeeObj and stores its results in a variable.
+        let newEmployee = this._newEmployeeObj();
+
+        // Calls the storageModule's method to edit an employee to the associated business' employeeArray in localStorage.
+        storageModule.employeeStorage.editEmployee(this._selectedBusiness.businessID, this._selectedEmployeeIndex, newEmployee);
+
+        // Calls the function to load all of the employees in the associated business' employeeArray to the employeeCardElement.
+        this._loadEmployees();
+
+        // Calls the function to unload the edit mode display.
+        this._unloadEditMode();
+    }
+
+    // Loads the editing mode for editing existing employees
+    _loadEditEmployeeMode() {
+        // Gets the employeeArray from localStorage.
+        let employeeArray = storageModule.employeeStorage.getEmployeeArray(this._selectedBusiness.businessID);
+
+        this._newEmployeeNameInput.value = employeeArray[this._selectedEmployeeIndex].employeeName;
+        this._newEmployeePositionInput.value = employeeArray[this._selectedEmployeeIndex].employeePosition;
+        this._newEmployeeButton.value = "Save Changes";
+        this._employeeFormContainer.classList.remove('hidden');
+        this._newEmployeeFormTitle.innerHTML = 'Edit Employee'
+    }
+
+    // Unloads the edit mode and sets the display and inputs back to creation mode.
+    _unloadEditMode() {
+        this._newEmployeeNameInput.value = '';
+        this._newEmployeePositionInput.value = '';
+        this._newEmployeeButton.value = "Create New Employee";
+        this._employeeFormContainer.classList.add('hidden');
+        this._newEmployeeFormTitle.innerHTML = 'New Employee'
+    }
+
+    // Removes the employee from the currently selected business's employeeArray. 
+    _removeEmployee() {
+        // Calls the storageModule method to remove the currently selected employee at its specified index.
+        storageModule.employeeStorage.removeEmployee(this._selectedBusiness.businessID, this._selectedEmployeeIndex);
+
+        // Calls the function to reload the employeeArray for the currently selected business.
+        this._loadEmployees();
+    }
+
+    // Removes all employees from the currently selected business's employeeArray.
+    _removeAllEmployees() {
+        // Calls the storage module's method to remove all employees from the passed in key.
+        storageModule.employeeStorage.removeAllEmployees(this._selectedBusiness.businessID);
+
+        // Calls the function to reload all employees for the display.
+        this._loadEmployees()
+    }
+
     // Loads all of the default eventListeners for the necessary HTML elements 
     _loadEventListeners() {
         // Event listeners associated with toggling hidden containers.
@@ -249,13 +320,24 @@ class AppUI {
         // Event listeners associated with redirecting the webpage.
         this._newBusinessFormButton.addEventListener('click', this._redirectTeamFormPage.bind(this));
 
-        // Event listener associated with creating a new employee
+        // Event listener associated with creating a new employee or editing an existing one.
         this._newEmployeeFormElement.addEventListener('submit', (e) => {
             e.preventDefault();
             if (this._selectedBusiness !== undefined) {
-                this._createNewEmployee();
+                if (this._newEmployeeButton.value === "Create New Employee") {
+                    this._createNewEmployee();
+                } else if (this._newEmployeeButton.value === "Save Changes") {
+                    this._editEmployee();
+                }
             } else {
                 alert('Please select a business before creating new employees.')
+            }
+        })
+
+        // Event listeners associated with removing employees from the selected business.
+        this._removeAllEmployeeButton.addEventListener('click', () => {
+            if (this._selectedBusiness !== undefined) {
+                this._removeAllEmployees();
             }
         })
     }
