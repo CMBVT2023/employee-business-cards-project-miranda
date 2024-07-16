@@ -17,8 +17,10 @@ export function capitalizeName(str) {
 
     // Iterates through all of the words in the array.
     for (const index in arr) {
-        // Replaces the word in the array with its capitalized counterpart.
-        arr[index] = arr[index][0].toUpperCase() + arr[index].substring(1);
+        if (arr[index] !== '') {
+            // Replaces the word in the array with its capitalized counterpart.
+            arr[index] = arr[index][0].toUpperCase() + arr[index].substring(1);
+        }
     }
 
     // Returns a string composed of all words in the array joined by a space.

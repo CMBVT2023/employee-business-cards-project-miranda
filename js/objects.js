@@ -5,9 +5,10 @@ export function employeeObject(name, position) {
 }
 
 // Creates a businessObject constructor.
-export function businessObject(id, name, owner, num = 0) {
+export function businessObject(id, name, owner, num = 0, arr = []) {
     this.businessID = id;
     this.businessName = name;
     this.businessOwner = owner;
     this.employeeAmount = num;
+    this.employeePositions = arr;
 }

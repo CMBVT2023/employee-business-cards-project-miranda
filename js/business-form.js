@@ -162,7 +162,7 @@ function confirmNewBusiness(businessObj) {
 }
 
 // Creates a new businessObject with the values in the form inputs.
-function newBusinessObj() {
+function newBusinessObj(val, arr) {
     // Initializes new variables to store the user's inputs, and the values are capitalizes before hand.
     let businessName = miscModule.capitalizeName(newBusinessNameInput.value);
     let businessOwner = miscModule.capitalizeName(newBusinessOwnerInput.value);
@@ -170,8 +170,17 @@ function newBusinessObj() {
     // Creates a new businessID by calling the miscModule's method to convert a string to spinalTap.
     let businessID = miscModule.spinalTapConversion(businessName);
 
-    // Creates a new businessObject by using the objectModule's businessObject constructor.
-    let newBusiness = new objectsModule.businessObject(businessID, businessName, businessOwner);
+    let newBusiness;
+
+    // Checks if the val or arr variables have pre-set values, meaning that the business is being edited
+    if (val !== undefined && arr !== undefined) {
+        // If so, create a new business object with these values passed in.
+        newBusiness = new objectsModule.businessObject(businessID, businessName, businessOwner, val, arr);
+    } else {
+        // Else, create the business object and use the default values.
+        // Creates a new businessObject by using the objectModule's businessObject constructor.
+        newBusiness = new objectsModule.businessObject(businessID, businessName, businessOwner);
+    }
 
     // Returns the newly created business.
     return newBusiness;
@@ -207,16 +216,17 @@ function createNewBusiness() {
 
 // Edits the business at the specified index with the edited user inputs.
 function editBusiness(index) {
-    // Have this grab the localStorage employee array associated with this business beforehand and clear it from localStorage,
-    // then have the grabbed array be stored with the new key, the spinal tap case of the possibly altered title.
+    // Calls the storageModule method to retrieve the businessArray from localStorage.
+    let list = storageModule.businessStorage.getBusinessArray();
 
     // Initializes a new variable to store a newBusinessObject, and the object is created by calling the method to create a newBusinessObject.
-    let newBusiness = newBusinessObj();
+    let newBusiness = newBusinessObj(list[index].employeeAmount, list[index].employeePositions);
 
     // Calls the storageModule method to overwrite the previous businessObject with the new changes at the specified index.
-    let oldObj = storageModule.businessStorage.editBusiness(index, newBusiness)
+    storageModule.businessStorage.editBusiness(index, newBusiness)
 
-    storageModule.employeeStorage.transferEmployeeArray(oldObj.businessID, newBusiness.businessID);
+    // Calls the method to transfer the employeeArray with the business' old ID value to new business ID in localStorage.
+    storageModule.employeeStorage.transferEmployeeArray(list[index].businessID, newBusiness.businessID);
 
     // Calls the method to remove clear all user inputs.
     clearSelection();

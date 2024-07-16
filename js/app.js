@@ -1,5 +1,4 @@
 // TODO:
-// Implement the filter for employees
 // Finalize UI Design
 
 // Imports the object constructors from the objects.js file.
@@ -89,22 +88,37 @@ class AppUI {
         }
     }
 
-    // Loads the selected business' employee count into the appropriate display.
+    // Updates the selected business' employee count and their employee positions into their appropriate displays.
     // // Parameter is the amount of employees that the business has, number is calculated based on the length of the business's
-    // // associated business array.
-    _loadBusinessEmployeeCount(num) {
+    // // associated business array, and an array containing all employee positions.
+    _updateCurrentBusiness(num, arr) {
         // Sets the employee count for the selected business and saves the value to localStorage.
         this._selectedBusiness.employeeAmount = +num;
+        this._selectedBusiness.employeePositions = arr;
 
-        // Calls the storageModule method to edit the currently selected business to update its employeeAmount variable.
+        // Calls the storageModule method to edit the currently selected business to update its employeeAmount variable and employeePositions array.
         storageModule.businessStorage.editBusiness(this._selectedBusinessIndex, this._selectedBusiness);
 
         // Loads the employeeAmount variable in to its associated display element.
         this._employeeAmountDisplay.innerHTML = this._selectedBusiness.employeeAmount;
 
+        // Loads the default option into the employeePositionSelection element.
+        this._employeePositionSelector.innerHTML = `<option value="none">-Select an Item-</option>`;
+
+        // Loads all employeePositions into the employeePositionSelection element.
+        for (const item of this._selectedBusiness.employeePositions) {
+            this._employeePositionSelector.innerHTML += `<option>${item}</option>`
+        }
+
+        // Clears the employeeNameFilterInput.
+        this._employeeNameFilterInput.value = ``;
+
+        // Checks if the employeeAmount for the selected business is greater than 0.
         if (this._selectedBusiness.employeeAmount > 0) {
+            // If so, displays the removeAll button.
             this._removeAllEmployeeButton.classList.remove('hidden');
         } else {
+            // If not, the removeAll button is hidden.
             this._removeAllEmployeeButton.classList.add('hidden');
         }
     }
@@ -113,6 +127,9 @@ class AppUI {
     _loadSelectedBusiness() {
         this._businessNameDisplay.innerHTML = this._selectedBusiness.businessName;
         this._ownerNameDisplay.innerHTML = this._selectedBusiness.businessOwner;
+
+        // Toggles the teamSelection display once a business is selected by the user.
+        this._toggleTeamSelection();
 
         this._loadEmployees();
     }
@@ -129,12 +146,12 @@ class AppUI {
             buttons[0].addEventListener('click', () => {
                 this._selectedEmployeeIndex = miscModule.returnIndex(buttonGroup.parentElement.getAttribute('id'));
                 this._loadEditEmployeeMode();
-            })
+            }, {once : true})
             // Initializes an eventListener to remove the selected employee based on its parentContainer's id.
             buttons[1].addEventListener('click', () => {
                 this._selectedEmployeeIndex = miscModule.returnIndex(buttonGroup.parentElement.getAttribute('id'));
                 this._removeEmployee(this._selectedEmployeeIndex);
-            })
+            }, {once : true})
         }
     }
 
@@ -142,6 +159,9 @@ class AppUI {
     _loadEmployees() {
         // Gets the employeeArray from localStorage.
         let employeeArray = storageModule.employeeStorage.getEmployeeArray(this._selectedBusiness.businessID);
+
+        // Initializes an empty array to store all employee positions.
+        let employeePositions = [];
 
         // Clears the employeeCardsElement.
         this._employeeCardsElement.innerHTML = ``;
@@ -156,8 +176,14 @@ class AppUI {
                     <h6 class="header-button">Edit</h6>
                     <h6 class="header-button">Delete</h6>
                 </div>
-            </div>`
-        }
+            </div>`;
+
+            // Checks if the employeePosition is already in the employeePosition array.
+            if (employeePositions.indexOf(employeeArray[item].employeePosition) === -1) {
+                // If not, adds the element to the array after passing it through the misc module's capitalization function.
+                employeePositions.push(miscModule.capitalizeName(employeeArray[item].employeePosition))
+            };
+        };
 
         // Checks if the employeeButtonHidden variable is true.
         if (this._employeeButtonHidden) {
@@ -165,10 +191,19 @@ class AppUI {
             this._toggleEmployeeButtons();
         }
 
+        // Checks if the employeeArray for the selected business is equal to zero.
+        if (employeeArray.length === 0) {
+            // If so, displays the new employeeCreation form.
+            this._employeeFormContainer.classList.remove('hidden')
+        } else {
+            this._employeeFormContainer.classList.add('hidden')
+        }
+
+        // Calls the function to load the eventListeners for the employeeButtons.
         this._loadEmployeeButtons();
 
-        // Calls the function to set the businessEmployeeAmount and passes in the length of the employeeArray.
-        this._loadBusinessEmployeeCount(employeeArray.length);
+        // Calls the function to update the currently selected business with its employeeCount value and employeePositions array.
+        this._updateCurrentBusiness(employeeArray.length, employeePositions);
     }
 
     // Loads all of the businesses from localStorage into the businessListElement.
@@ -194,11 +229,7 @@ class AppUI {
     
             // Calls the function to load the eventListeners for the inputs in the businessListElement.
             this._loadAllBusinessEventListeners();
-        } else {
-            // If no businesses are present within the array.
-            this._toggleTeamSelection()
         }
-
     }
 
     // Loads all the eventListeners for the inputs currently in the businessListElement.
@@ -316,24 +347,50 @@ class AppUI {
         }
     }
 
+    // Filters the employees displayed in the employeeCard div based on the user's inputs.
     _filterEmployees() {
+        // Initializes variables to store the user's inputs for the filter.
         let filterNameValue = this._employeeNameFilterInput.value === "" ? undefined : this._employeeNameFilterInput.value;
         let filterPositionValue = this._employeePositionSelector.value === "none" ? undefined : this._employeePositionSelector.value;
 
+        // Checks that a business is selected before attempting to filter the employeeCard div.
         if (this._selectedBusiness !== undefined) {
-            // Instead of pulling the array from localStorage, I'm going to pull the html div element containing the employees.    
+            // Iterates through all employee cards in the employeeCardsElement div.    
             for (const employee of this._employeeCardsElement.querySelectorAll('.business-employee')) {
+                // Initializes a variable that will signal if an employee matches the filter inputs.
+                let match = true;
+
+                // Checks that the user has specified a name input filter.
                 if (filterNameValue !== undefined) {
+                    // Initializes a variable to store the employee name from the card element.
                     let employeeName = employee.querySelector('h1').innerHTML;
+
+                    // Initializes a variable to store the user's filter input as a regex pattern.
                     let regexPattern = new RegExp(`(^${filterNameValue}.*)`, 'gi')
+
+                    // Checks if the an the employee's card name matches the user's input filter.
                     if (employeeName.match(regexPattern) === null) {
-                        employee.classList.add('hidden')
-                    } else {
-                        employee.classList.remove('hidden')
+                        // If not, set match equal to false.
+                        match = false;
                     }
                 }
-                if (filterPositionValue !== undefined) {
-                    console.log(employee)
+
+                // Checks if the user has specified a position filter, or if the match variable is already false.
+                if (filterPositionValue !== undefined || match === false) {
+                    // Checks if the filterPOsitionValue is not equal to the employee's position.
+                    if (employee.querySelector('span').innerHTML !== filterPositionValue) {
+                        // If not, set match equal to false.
+                        match = false;
+                    }
+                }
+
+                // Checks the final value of match.
+                if (match) {
+                    // If match remains true, then the employee is displayed in the card element.
+                    employee.classList.remove('hidden')
+                } else {
+                    // If the match changed to false, then the employee is hidden in the card element.
+                    employee.classList.add('hidden')
                 }
             }
         }

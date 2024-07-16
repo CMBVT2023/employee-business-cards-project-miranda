@@ -48,9 +48,6 @@ export class businessStorage {
 
         // Calls the method to set the businessArray to the altered array.
         this.setBusinessArray(list);
-
-        // Returns the old business object.
-        return oldObj;
     }
 }
 
