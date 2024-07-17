@@ -11,36 +11,49 @@
         <meta property='og:image:height' content='150' />
         <meta property="og:type" content='website'/>
 
+    <!-- Main Style Sheet -->
     <link rel="stylesheet" href="./style.css">
+
+    <!-- Page Specific Style Sheet -->
+    <link rel="stylesheet" href="./business-form.css">
     <title>Employee Business Cards: Business Form Page</title>
     <link rel="icon" type="image/x-icon" href="./assets/address-card-regular.svg">
 </head>
 <body>
     
     <!-- Main Body Container -->
-    <div class="main-container">
+    <div id="main-container">
         <!-- Team Form Container -->
-        <div id="team-form-container">
+        <div id="team-form-container" class="container-object">
             <h1>New Business</h1>
 
             <!-- Form Container -->
             <form id="team-form">
-                <label for="business-name-input">Business Name:</label><input type="text" id="business-name-input" placeholder="Business name..." required>
-                <label for="business-owner-input">Business Owner:</label><input type="text" id="business-owner-input" placeholder="Business owner..." required>
+                <div>
+                    <label for="business-name-input">Business Name:</label><input type="text" id="business-name-input" placeholder="Business name..." required>
+                </div>
+                <div>
+                    <label for="business-owner-input">Business Owner:</label><input type="text" id="business-owner-input" placeholder="Business owner..." required>
+                </div>
                 <input type="submit" id='form-submit-button' value="Create New Business">
                 <h4 class="header-button hidden" id="edit-mode-cancelation">Cancel</h4>
             </form>
-        </div>
 
-        <!-- Team List Container -->
-        <div id="team-list-container">
-
+            <img src="./assets/address-card-regular.svg" id="business-image">
         </div>
-        <h4 class="header-button hidden" id="remove-all-businesses">Remove All</h4>
+        
+
+        <div id="business-container" class="container-object">
+            <!-- Team List Container -->
+            <div id="team-list-container">
+
+            </div>
+            <h4 class="header-button hidden" id="remove-all-businesses">Remove All</h4>
+        </div>
+        <h4 class="header-button" id="team-form-return">Return</h4>
     </div>
 
     <!-- Return Button -->
-    <h4 class="header-button" id="team-form-return">Return</h4>
 
 <script src="./js/business-form.js" type="module"></script>
 </body>

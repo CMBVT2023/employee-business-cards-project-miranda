@@ -1,7 +1,26 @@
+:root {
+    --main-background-color: #F9DAD0;
+    --secondary-background-color: #F5F2B8;
+    --outline-background-color: #C5DCA0;
+    --main-text-color: #464B5A;
+    --secondary-text-color: #6741C9;
+}
+
 html {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    background-color: var(--main-background-color);
+    color: var(--main-text-color);
+}
+
+.header-button {
+    color: var(--secondary-text-color);
+}
+
+.header-button:hover {
+    transform: scale(1.25);
+    cursor: pointer;
 }
 
 #watermark {

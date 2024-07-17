@@ -120,12 +120,14 @@ function loadTeamList() {
         // Iterates through the businessArray.
         for (let index = 0; index < list.length; index++) {
             // Appends a div with the currently selected business' values and necessary buttons.
-            teamListElement.innerHTML += `<div id='${index}'>
+            teamListElement.innerHTML += `<div id='${index}' class='business-element'>
                 <h3>Business: ${list[index].businessName}</h3>
                 <h3>Employee Count: ${list[index].employeeAmount}</h3>
                 <h3>Owner: ${list[index].businessOwner}</h3>
-                <h4 class="header-button">Edit</h4>
-                <h4 class="header-button">Remove</h4>
+                <div>
+                    <h4 class="header-button">Edit</h4>
+                    <h4 class="header-button">Remove</h4>
+                </div>
             </div>`
         }
 
