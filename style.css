@@ -12,15 +12,55 @@ html {
     overflow: hidden;
     background-color: var(--main-background-color);
     color: var(--main-text-color);
+    padding: 0px;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+#team-selection {
+    position: absolute;
+    top: 1%;
+    right: 5%;
+}
+
+#filter-container {
+    align-self: center;
 }
 
 .header-button {
     color: var(--secondary-text-color);
+    width: fit-content;
 }
 
 .header-button:hover {
-    transform: scale(1.25);
+    transform: translate3d(0px, -0.15rem, 0px);
     cursor: pointer;
+}
+
+#display-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 50vh;
+    width: 99vw;
+}
+
+#employee-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    max-width: 2000px;
+    min-width: 250px;
+    width: 250px;
+}
+
+
+
+.business-employee {
+    width: 250px;
 }
 
 #watermark {
@@ -33,4 +73,41 @@ html {
 
 .hidden {
     display: none;
+}
+
+@media screen and (min-width: 500px) {
+    #employee-cards {
+        width: 500px;
+    }
+}
+
+@media screen and (min-width: 750px) {
+    #employee-cards {
+        width: 750px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    #employee-cards {
+        width: 1000px;
+    }
+}
+
+@media screen and (min-width: 1250px) {
+    #employee-cards {
+        width: 1250px;
+    }
+}
+
+
+@media screen and (min-width: 1500px) {
+    #employee-cards {
+        width: 1500px;
+    }
+}
+
+@media screen and (min-width: 1750px) {
+    #employee-cards {
+        width: 1750px;
+    }
 }

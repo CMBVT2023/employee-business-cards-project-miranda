@@ -63,6 +63,15 @@
     justify-content: space-around;
 }
 
+.header-button {
+    color: var(--secondary-text-color);
+}
+
+.header-button:hover {
+    transform: scale(1.25);
+    cursor: pointer;
+}
+
 #team-form {
     display: flex;
     flex-direction: column;
